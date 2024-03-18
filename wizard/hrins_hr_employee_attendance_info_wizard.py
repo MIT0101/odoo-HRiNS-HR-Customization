@@ -54,6 +54,7 @@ class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
         sheet.write('K1', 'Last Time Off Duration')
         row = 1
         col = 0
+        date_range = d_utils.generate_date_range(start_date, end_date)
         for employee in employees:
             # order by check_in
             emp_attendances = self.env['hr.attendance'].search_read([('employee_id', '=', employee.id),
@@ -82,7 +83,6 @@ class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
                                               "time_off_type": time_off['holiday_status_id'][1],
                                               "duration_display": time_off['duration_display']}
 
-            date_range = d_utils.generate_date_range(start_date, end_date)
             for date in date_range:
 
                 sheet.write(row, col, employee.id)
