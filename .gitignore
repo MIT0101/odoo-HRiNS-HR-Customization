@@ -1,0 +1,30 @@
+# Byte-compiled / optimized Python files
+__pycache__/
+*.py[cod]
+
+# Odoo log files
+*.log
+
+# Database file
+*.sqlite
+
+# Automatically generated files
+*.pyc
+*.pyo
+
+# Editor and IDE files
+.vscode/
+.idea/
+
+# Odoo specific
+__manifest__.pyc
+/migrations/
+/session/
+/tests/
+__pycache__/
+coverage.xml
+
+*/__pycache__/
+*/__pycache__/*
+
+
