@@ -44,7 +44,7 @@ class HrEmployee(models.Model):
         # write headers
         sheet.write('A1', 'Employee ID')
         sheet.write('B1', 'Name')
-        sheet.write('C1', 'Job Title')
+        sheet.write('C1', 'Department')
         sheet.write('D1', 'Date')
         sheet.write('E1', 'Check In')
         sheet.write('F1', 'Check Out')
@@ -88,7 +88,7 @@ class HrEmployee(models.Model):
 
                 sheet.write(row, col, employee.id)
                 sheet.write(row, col + 1, employee.name)
-                sheet.write(row, col + 2, employee.job_title)
+                sheet.write(row, col + 2, employee.department_id.name)
                 sheet.write(row, col + 3, d_utils.format_date(date))
                 if date in emp_dict:
                     sheet.write(row, col + 4, d_utils.format_date_time(emp_dict[date].get('check_in'), user_tz))
