@@ -7,7 +7,7 @@
 
     'description': """
         Module Contains Hrins HR Customization
-        1- Add New action to hr.employee model to download employees attendance info as excel file
+        1- Add New action to hr.employee model to open wizard to download employees attendance info as excel file
     """,
 
     'author': "@HRiNS/M.Al-Mustafa",
@@ -21,8 +21,8 @@
 
     # always loaded
     'data': [
-        # 'security/security.xml',  # security groups
-        'views/hr_employee_views_custom.xml',
+        'security/security.xml',  # security groups
+        'wizard/hrins_hr_employee_attendance_info_wizard_view.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

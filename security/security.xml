@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Security Access Rights for hr.employee.attendance.leave.info.wizard -->
+    <record id="hr_employee_attendance_leave_info_wizard_access_group" model="ir.model.access">
+        <field name="name">hr.employee.attendance.leave.info.wizard</field>
+        <field name="model_id" ref="model_hr_employee_attendance_leave_info_wizard"/>
+        <field name="group_id" ref="hr.group_hr_user"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+</odoo>

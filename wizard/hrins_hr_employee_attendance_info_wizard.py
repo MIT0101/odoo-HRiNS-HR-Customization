@@ -10,11 +10,13 @@ from odoo import models, fields, api, _
 from ..utils import datetime_utils as d_utils
 
 
-class HrEmployee(models.Model):
-    _inherit = 'hr.employee'
+class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
+    _name = 'hr.employee.attendance.leave.info.wizard'
 
-    ## action to download excel file contains list of info about active employees
-    def download_attendance_leave_info_this_month_xls_action(self):
+    start_date = fields.Date(string="Start Date", required=True)
+    end_date = fields.Date(string="End Date", required=True)
+
+    def download_attendance_leave_info_xls(self):
         if self.env.context.get('active_model') == 'hr.employee':
             employees_ids = self.env.context.get('active_ids')
 
@@ -22,11 +24,8 @@ class HrEmployee(models.Model):
             return False
 
         employees = self.env['hr.employee'].browse(employees_ids)
-        first_day_of_month = datetime.date.today().replace(day=1)
-        # first_day_of_month = datetime.date(2024, 1, 1)
-        last_day_of_month = first_day_of_month + relativedelta.relativedelta(months=1, days=-1)
-        output_obj, worksheet = self._get_employees_attendance_leave_info(employees, first_day_of_month,
-                                                                          last_day_of_month)
+
+        output_obj, worksheet = self._get_employees_attendance_leave_info(employees, self.start_date, self.end_date)
         download_url = self._store_file(output_obj)
         return {
             'type': 'ir.actions.act_url',
@@ -109,6 +108,7 @@ class HrEmployee(models.Model):
         result = base64.b64encode(output_obj.read())
         current_time_str = d_utils.format_date_time(datetime.datetime.now()).replace(" ", "_").replace(":", "-")
         file_name = f"employees_info_{current_time_str}.xlsx"
-        attachment_obj = self.env['ir.attachment'].sudo().create({'name': file_name, 'type': 'binary', 'datas': result})
+        attachment_obj = self.env['ir.attachment'].sudo().create(
+            {'name': file_name, 'type': 'binary', 'datas': result})
         download_url = '/web/content/' + str(attachment_obj.id) + '?download=true'
         return download_url
