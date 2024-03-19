@@ -78,10 +78,16 @@ class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
             for time_off in emp_time_offs:
                 date_from = fields.Datetime.from_string(time_off['date_from'])
                 date_to = fields.Datetime.from_string(time_off['date_to'])
-                emp_dict[date_from.date()] = {"date_from": date_from,
-                                              "date_to": date_to,
-                                              "time_off_type": time_off['holiday_status_id'][1],
-                                              "duration_display": time_off['duration_display']}
+                time_off_dict = {
+                    "date_from": date_from,
+                    "date_to": date_to,
+                    "time_off_type": time_off['holiday_status_id'][1],
+                    "duration_display": time_off['duration_display']
+                }
+                if emp_dict.get(date_from.date()):
+                    emp_dict[date_from.date()].update(time_off_dict)
+                else:
+                    emp_dict[date_from.date()] = time_off_dict
 
             for date in date_range:
 
