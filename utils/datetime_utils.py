@@ -9,11 +9,17 @@ def format_date(date):
 
 
 def format_date_time(date_time, user_tz=pytz.utc):
+    date_time_res = get_date_time_from_user_tz(date_time, user_tz)
+    if not date_time_res:
+        return None
+    return date_time_res.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def get_date_time_from_user_tz(date_time, user_tz=pytz.utc):
     if not date_time:
         return None
     date_time.astimezone(pytz.utc)
-    date_in_user_tz = date_time.astimezone(user_tz)
-    return date_in_user_tz.strftime("%Y-%m-%d %H:%M:%S")
+    return date_time.astimezone(user_tz)
 
 
 def generate_date_range(start_date, end_date):

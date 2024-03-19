@@ -1,3 +1,4 @@
+import logging
 import base64
 import io
 import datetime
@@ -8,6 +9,8 @@ from dateutil import relativedelta
 from odoo import models, fields, api, _
 
 from ..utils import datetime_utils as d_utils
+
+_logger = logging.getLogger(__name__)
 
 
 class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
@@ -70,21 +73,26 @@ class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
                                                               'holiday_status_id', 'duration_display'])
 
             emp_dict = {}
+            ## add attendance info to emp_dict
             for attendance in emp_attendances:
-                check_in_date = fields.Datetime.from_string(attendance['check_in']).date()
-                emp_dict[check_in_date] = {"check_in": attendance['check_in'],
-                                           "check_out": attendance['check_out'],
-                                           "worked_hours": attendance['worked_hours']}
+                check_in_date = d_utils.get_date_time_from_user_tz(attendance['check_in'], user_tz).date()
+                emp_dict[check_in_date] = {
+                    "check_in": d_utils.format_date_time(attendance['check_in'], user_tz),
+                    "check_out": d_utils.format_date_time(attendance['check_out'], user_tz),
+                    "worked_hours": attendance['worked_hours']
+                }
+
+            ## add time off info to emp_dict
             for time_off in emp_time_offs:
-                date_from = fields.Datetime.from_string(time_off['date_from'])
-                date_to = fields.Datetime.from_string(time_off['date_to'])
-                date_from_date = date_from.date()
+
                 time_off_dict = {
-                    "date_from": date_from,
-                    "date_to": date_to,
+                    "date_from": d_utils.format_date_time(time_off['date_from'], user_tz),
+                    "date_to": d_utils.format_date_time(time_off['date_to'], user_tz),
                     "time_off_type": time_off['holiday_status_id'][1],
                     "duration_display": time_off['duration_display']
                 }
+                date_from_date = d_utils.get_date_time_from_user_tz(time_off['date_from'], user_tz).date()
+                # _logger.info(f"emp id {employee.id} date_from_date {date_from_date} time_off_dict {time_off_dict}")
                 if emp_dict.get(date_from_date):
                     emp_dict[date_from_date].update(time_off_dict)
                 else:
@@ -92,16 +100,18 @@ class HrEmployeeAttendanceLeaveInfoWizard(models.TransientModel):
 
             for date in date_range:
 
+                # _logger.info(f"emp id {employee.id} date {date} emp_dict {emp_dict}")
+
                 sheet.write(row, col, employee.id)
                 sheet.write(row, col + 1, employee.name)
                 sheet.write(row, col + 2, employee.department_id.name)
                 sheet.write(row, col + 3, d_utils.format_date(date))
                 if date in emp_dict:
-                    sheet.write(row, col + 4, d_utils.format_date_time(emp_dict[date].get('check_in'), user_tz))
-                    sheet.write(row, col + 5, d_utils.format_date_time(emp_dict[date].get('check_out'), user_tz))
+                    sheet.write(row, col + 4, emp_dict[date].get('check_in'))
+                    sheet.write(row, col + 5, emp_dict[date].get('check_out'))
                     sheet.write(row, col + 6, emp_dict[date].get('worked_hours'))
-                    sheet.write(row, col + 7, d_utils.format_date_time(emp_dict[date].get('date_from'), user_tz))
-                    sheet.write(row, col + 8, d_utils.format_date_time(emp_dict[date].get('date_to'), user_tz))
+                    sheet.write(row, col + 7, emp_dict[date].get('date_from'))
+                    sheet.write(row, col + 8, emp_dict[date].get('date_to'))
                     sheet.write(row, col + 9, emp_dict[date].get('time_off_type'))
                     sheet.write(row, col + 10, emp_dict[date].get('duration_display'))
                 row += 1
